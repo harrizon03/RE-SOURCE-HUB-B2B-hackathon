@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Listing - RE-SOURCE HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans h-screen flex flex-col">
+
+    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold tracking-wider">RE-SOURCE HUB</h1>
+        <a href="index.html" class="text-sm text-gray-300 hover:text-white"><i class="fa-solid fa-arrow-left mr-2"></i> Cancel</a>
+    </nav>
+
+    <main class="flex-1 flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100 w-full max-w-2xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">Create New Byproduct Listing</h2>
+            
+            <form id="submitListingForm" class="space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Material Category</label>
+                        <select id="inputMaterial" class="w-full border border-gray-300 rounded-md p-3 focus:ring-green-500 outline-none" required>
+                            <option>Cotton Offcuts</option>
+                            <option>PET Scrap</option>
+                            <option>Steel Shavings</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Volume (Tonnes)</label>
+                        <input type="number" id="inputVolume" step="0.1" placeholder="e.g. 1.5" class="w-full border border-gray-300 rounded-md p-3 focus:ring-green-500 outline-none" required>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-5 rounded-lg border border-slate-200">
+                    <label class="block text-sm font-medium text-slate-800 mb-3"><i class="fa-solid fa-list-check text-blue-500 mr-2"></i> QA Checklist</label>
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 text-green-600 rounded" required>
+                        <span class="text-sm">Material is free from hazardous chemical contamination.</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-lg py-4 rounded-lg shadow-md transition-all">
+                    Publish to Regional Network
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('submitListingForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Stop normal form from refreshing the page
+
+            // Get what the user typed
+            const material = document.getElementById('inputMaterial').value;
+            const volume = document.getElementById('inputVolume').value;
+
+            // Fake some math to make it look like a smart API calculation
+            const fakeDistance = (Math.random() * (12.0 - 1.5) + 1.5).toFixed(1); 
+            const fakeCO2 = Math.floor(volume * 210); 
+
+            // Create the new data package
+            const newListing = {
+                material: `${material} (${volume}t)`,
+                routing: `Ambattur Factory (You) &rarr; <span class="text-blue-600">Local Match Engine</span>`,
+                distance: `${fakeDistance} km`,
+                co2: `${fakeCO2} kg`
+            };
+
+            // Save to browser memory
+            let savedListings = JSON.parse(localStorage.getItem('reSourceHubData')) || [];
+            savedListings.unshift(newListing); // Add to the very top
+            localStorage.setItem('reSourceHubData', JSON.stringify(savedListings));
+
+            // Redirect back to the dashboard instantly!
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RE-SOURCE HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-recycle text-green-400 text-2xl"></i>
+            <h1 class="text-xl font-bold tracking-wider">RE-SOURCE HUB <span class="text-xs text-gray-400 font-normal">| Enterprise Edition</span></h1>
+        </div>
+        <div class="flex items-center space-x-4 text-sm">
+            <span class="flex items-center text-green-400 bg-slate-800 px-3 py-1 rounded-full border border-green-800">
+                <span class="h-2 w-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                System Status: 99.9% Uptime | Ambattur Node Active
+            </span>
+        </div>
+    </nav>
+
+    <div class="flex h-screen">
+        <aside class="w-64 bg-white shadow-lg border-r border-gray-200 p-5 flex flex-col space-y-6">
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Core Infrastructure</p>
+            <a href="#" class="flex items-center space-x-3 text-blue-600 font-semibold bg-blue-50 p-2 rounded-lg"><i class="fa-solid fa-chart-line w-5 text-center"></i><span>Analytics Dashboard</span></a>
+            <a href="#" class="flex items-center space-x-3 text-gray-600 hover:text-blue-600 p-2"><i class="fa-solid fa-network-wired w-5 text-center"></i><span>REST API Connections</span></a>
+            <div class="mt-auto pt-10">
+                <a href="listing.html" class="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-md transition-all">
+                    + New Byproduct Listing
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-l-4 border-l-green-500">
+                    <p class="text-sm text-gray-500 font-semibold mb-1">Landfill Diversion</p>
+                    <p class="text-3xl font-bold text-gray-800">104.2 <span class="text-lg text-gray-500 font-normal">Tonnes</span></p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-l-4 border-l-blue-500">
+                    <p class="text-sm text-gray-500 font-semibold mb-1">SME OPEX Saved</p>
+                    <p class="text-3xl font-bold text-gray-800">₹42,500</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-l-4 border-l-purple-500">
+                    <p class="text-sm text-gray-500 font-semibold mb-1">Platform Viability</p>
+                    <p class="text-3xl font-bold text-gray-800">35% <span class="text-lg text-gray-500 font-normal">Funded</span></p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-5 border-b border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-800">Recent Hyper-Local Matches</h2>
+                </div>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 text-sm border-b">
+                            <th class="p-4 font-semibold">Material</th>
+                            <th class="p-4 font-semibold">Match Routing</th>
+                            <th class="p-4 font-semibold">Distance</th>
+                            <th class="p-4 font-semibold">CO2-e Avoided</th>
+                            <th class="p-4 font-semibold text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listingsTableBody" class="text-sm">
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="p-4 font-medium text-gray-800">Aluminum Shavings (2.5t)</td>
+                            <td class="p-4">Ambattur Machining &rarr; <span class="text-blue-600">Local Foundry A</span></td>
+                            <td class="p-4">4.2 km</td>
+                            <td class="p-4 text-green-600 font-medium">850 kg</td>
+                            <td class="p-4 text-center"><span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs font-bold">Verified</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // Check browser memory for any saved listings
+            let savedListings = JSON.parse(localStorage.getItem('reSourceHubData')) || [];
+            const tableBody = document.getElementById('listingsTableBody');
+
+            // If there is data, inject it at the top of the table
+            savedListings.forEach(item => {
+                const newRow = `
+                    <tr class="border-b border-gray-100 bg-green-50 animate-pulse">
+                        <td class="p-4 font-bold text-gray-800">${item.material} <span class="text-xs text-white bg-green-600 px-2 py-1 rounded ml-2">NEW</span></td>
+                        <td class="p-4">${item.routing}</td>
+                        <td class="p-4 font-bold text-blue-600">${item.distance}</td>
+                        <td class="p-4 text-green-600 font-bold">${item.co2}</td>
+                        <td class="p-4 text-center"><span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs font-bold">Matched via API</span></td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('afterbegin', newRow);
+            });
+        }
+    </script>
+</body>
+</html>
