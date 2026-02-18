@@ -81,60 +81,64 @@
     </div>
 
     <script>
-        // 1. CONNECT TO SUPABASE (Your Keys!)
-        const supabaseUrl = 'https://fkssmmdopnrstqytapae.supabase.co';
-        const supabaseKey = 'sb_publishable_v4JsOeAw22tbYdgRoRUpNg_gRcLNyWf';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
         window.onload = async function() {
-            // Setup Map
-            var map = L.map('map').setView([13.0983, 80.1622], 14);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
-            L.circleMarker([13.0950, 80.1600], {color: 'red', radius: 6}).addTo(map);
-            L.circleMarker([13.1020, 80.1650], {color: 'blue', radius: 6}).addTo(map);
-            L.polyline([[13.0950, 80.1600], [13.1020, 80.1650]], {color: 'green', dashArray: '5, 5', weight: 3}).addTo(map);
+            // --- 1. SETUP MAP (This will now work even if DB fails) ---
+            try {
+                var map = L.map('map').setView([13.0983, 80.1622], 14);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+                L.circleMarker([13.0950, 80.1600], {color: 'red', radius: 6}).addTo(map);
+                L.circleMarker([13.1020, 80.1650], {color: 'blue', radius: 6}).addTo(map);
+                L.polyline([[13.0950, 80.1600], [13.1020, 80.1650]], {color: 'green', dashArray: '5, 5', weight: 3}).addTo(map);
+            } catch(err) { console.error("Map Error:", err); }
 
-            // Setup Chart
-            const ctx = document.getElementById('impactChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ['W1', 'W2', 'W3', 'W4'], datasets: [{ data: [1200, 1900, 1500, 2200], backgroundColor: '#3b82f6', borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-
-            // 2. FETCH DATA FROM YOUR LIVE POSTGRESQL DATABASE
-            const { data: byproducts, error } = await supabase
-                .from('byproducts')
-                .select('*')
-                .order('id', { ascending: false }); // Gets newest first
-
-            if (error) {
-                console.error("Database Error:", error);
-                document.getElementById('listingsTableBody').innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500 font-bold">Database connection failed. Did you turn off Row Level Security (RLS)?</td></tr>`;
-                return;
-            }
-
-            const tableBody = document.getElementById('listingsTableBody');
-            let currentTonnes = 104.2; // Base number
-
-            // Loop through the real database items
-            if(byproducts && byproducts.length > 0) {
-                byproducts.forEach(item => {
-                    const newRow = `
-                        <tr class="border-b border-blue-100 bg-blue-50/30">
-                            <td class="p-3 font-bold text-slate-800">${item.material}</td>
-                            <td class="p-3 text-slate-600">${item.routing}</td>
-                            <td class="p-3 text-blue-600 font-bold">${item.distance}</td>
-                            <td class="p-3"><span class="bg-blue-100 text-blue-700 py-1 px-2 rounded text-xs font-bold"><i class="fa-solid fa-cloud mr-1"></i>Cloud SQL DB</span></td>
-                        </tr>`;
-                    tableBody.insertAdjacentHTML('beforeend', newRow);
-                    if(item.rawVolume) currentTonnes += parseFloat(item.rawVolume); 
+            // --- 2. SETUP CHART (This will now work even if DB fails) ---
+            try {
+                const ctx = document.getElementById('impactChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: ['W1', 'W2', 'W3', 'W4'], datasets: [{ data: [1200, 1900, 1500, 2200], backgroundColor: '#3b82f6', borderRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
                 });
-            } else {
-                tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">No byproducts in database yet. Inject material to begin!</td></tr>`;
-            }
+            } catch(err) { console.error("Chart Error:", err); }
 
-            document.getElementById('totalDiverted').innerText = currentTonnes.toFixed(1);
+            // --- 3. SETUP DATABASE SECURELY ---
+            try {
+                const supabaseUrl = 'https://fkssmmdopnrstqytapae.supabase.co';
+                const supabaseKey = 'sb_publishable_v4JsOeAw22tbYdgRoRUpNg_gRcLNyWf';
+                const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+                const { data: byproducts, error } = await supabase
+                    .from('byproducts')
+                    .select('*')
+                    .order('id', { ascending: false });
+
+                if (error) throw error; // If DB fails, jump to catch block
+
+                const tableBody = document.getElementById('listingsTableBody');
+                let currentTonnes = 104.2;
+
+                if(byproducts && byproducts.length > 0) {
+                    byproducts.forEach(item => {
+                        const newRow = `
+                            <tr class="border-b border-blue-100 bg-blue-50/30">
+                                <td class="p-3 font-bold text-slate-800">${item.material}</td>
+                                <td class="p-3 text-slate-600">${item.routing}</td>
+                                <td class="p-3 text-blue-600 font-bold">${item.distance}</td>
+                                <td class="p-3"><span class="bg-blue-100 text-blue-700 py-1 px-2 rounded text-xs font-bold"><i class="fa-solid fa-cloud mr-1"></i>Cloud SQL DB</span></td>
+                            </tr>`;
+                        tableBody.insertAdjacentHTML('beforeend', newRow);
+                        if(item.rawVolume) currentTonnes += parseFloat(item.rawVolume); 
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">No byproducts in database yet. Inject material to begin!</td></tr>`;
+                }
+                document.getElementById('totalDiverted').innerText = currentTonnes.toFixed(1);
+
+            } catch(err) {
+                console.error("Supabase Error:", err);
+                document.getElementById('listingsTableBody').innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Database connection blocked by local file security. Please use the live GitHub link!</td></tr>`;
+                document.getElementById('totalDiverted').innerText = "104.2";
+            }
         }
     </script>
 </body>
