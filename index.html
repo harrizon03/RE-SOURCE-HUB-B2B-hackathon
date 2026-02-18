@@ -3,101 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RE-SOURCE HUB</title>
+    <title>RE-SOURCE HUB | Enterprise Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-slate-50 font-sans h-screen flex flex-col overflow-hidden">
 
-    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md">
+    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg z-10">
         <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-recycle text-green-400 text-2xl"></i>
-            <h1 class="text-xl font-bold tracking-wider">RE-SOURCE HUB <span class="text-xs text-gray-400 font-normal">| Enterprise Edition</span></h1>
+            <i class="fa-solid fa-layer-group text-blue-400 text-2xl"></i>
+            <h1 class="text-xl font-bold tracking-widest">RE-SOURCE HUB <span class="text-xs text-blue-300 font-normal ml-2 bg-blue-900 px-2 py-1 rounded">V 3.0 FULL-STACK</span></h1>
         </div>
-        <div class="flex items-center space-x-4 text-sm">
-            <span class="flex items-center text-green-400 bg-slate-800 px-3 py-1 rounded-full border border-green-800">
+        <div class="flex items-center space-x-6 text-sm">
+            <span class="flex items-center text-green-400">
                 <span class="h-2 w-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-                System Status: 99.9% Uptime | Ambattur Node Active
+                PostgreSQL DB: Connected
             </span>
+            <div class="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center border-2 border-slate-400"><i class="fa-solid fa-database"></i></div>
         </div>
     </nav>
 
-    <div class="flex h-screen">
-        <aside class="w-64 bg-white shadow-lg border-r border-gray-200 p-5 flex flex-col space-y-6">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Core Infrastructure</p>
-            <a href="#" class="flex items-center space-x-3 text-blue-600 font-semibold bg-blue-50 p-2 rounded-lg"><i class="fa-solid fa-chart-line w-5 text-center"></i><span>Analytics Dashboard</span></a>
-            <a href="#" class="flex items-center space-x-3 text-gray-600 hover:text-blue-600 p-2"><i class="fa-solid fa-network-wired w-5 text-center"></i><span>REST API Connections</span></a>
-            <div class="mt-auto pt-10">
-                <a href="listing.html" class="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-md transition-all">
-                    + New Byproduct Listing
+    <div class="flex flex-1 overflow-hidden">
+        <aside class="w-64 bg-slate-800 text-slate-300 flex flex-col shadow-2xl z-0">
+            <div class="p-6">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Command Modules</p>
+                <a href="#" class="flex items-center space-x-3 text-white bg-blue-600 p-3 rounded-lg shadow-md mb-2"><i class="fa-solid fa-chart-pie w-5"></i><span>Live Telemetry</span></a>
+                <a href="#" class="flex items-center space-x-3 hover:text-white hover:bg-slate-700 p-3 rounded-lg transition-colors mb-2"><i class="fa-solid fa-truck-fast w-5"></i><span>Logistics & Routing</span></a>
+                <a href="#" class="flex items-center space-x-3 hover:text-white hover:bg-slate-700 p-3 rounded-lg transition-colors"><i class="fa-solid fa-file-contract w-5"></i><span>Smart Contracts</span></a>
+            </div>
+            <div class="mt-auto p-6 border-t border-slate-700">
+                <a href="listing.html" class="flex justify-center items-center w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-3 px-4 rounded-lg shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all">
+                    <i class="fa-solid fa-plus mr-2"></i> Inject Material
                 </a>
             </div>
         </aside>
 
-        <main class="flex-1 p-8 overflow-y-auto">
+        <main class="flex-1 p-6 overflow-y-auto">
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-l-4 border-l-green-500">
-                    <p class="text-sm text-gray-500 font-semibold mb-1">Landfill Diversion</p>
-                    <p class="text-3xl font-bold text-gray-800">104.2 <span class="text-lg text-gray-500 font-normal">Tonnes</span></p>
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><p class="text-xs text-slate-500 font-bold uppercase">Active Nodes</p><p class="text-2xl font-black text-slate-800">42 <span class="text-sm text-green-500"><i class="fa-solid fa-caret-up"></i> 3</span></p></div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><p class="text-xs text-slate-500 font-bold uppercase">Tonnes Diverted</p><p class="text-2xl font-black text-slate-800" id="totalDiverted">Loading...</p></div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><p class="text-xs text-slate-500 font-bold uppercase">OPEX Saved (₹)</p><p class="text-2xl font-black text-green-600">42,500</p></div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><p class="text-xs text-slate-500 font-bold uppercase">DB Latency</p><p class="text-2xl font-black text-blue-600">14ms</p></div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6 mb-6">
+                <div class="col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                    <h3 class="text-sm font-bold text-slate-700 mb-3"><i class="fa-solid fa-satellite mr-2"></i>Live Routing Map (Ambattur)</h3>
+                    <div id="map" class="h-64 w-full rounded-lg z-0"></div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-l-4 border-l-blue-500">
-                    <p class="text-sm text-gray-500 font-semibold mb-1">SME OPEX Saved</p>
-                    <p class="text-3xl font-bold text-gray-800">₹42,500</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-l-4 border-l-purple-500">
-                    <p class="text-sm text-gray-500 font-semibold mb-1">Platform Viability</p>
-                    <p class="text-3xl font-bold text-gray-800">35% <span class="text-lg text-gray-500 font-normal">Funded</span></p>
+                <div class="col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                    <h3 class="text-sm font-bold text-slate-700 mb-3"><i class="fa-solid fa-chart-line mr-2"></i>CO2-e Mitigation (kg)</h3>
+                    <canvas id="impactChart" class="w-full h-64"></canvas>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-5 border-b border-gray-100">
-                    <h2 class="text-lg font-bold text-gray-800">Recent Hyper-Local Matches</h2>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <h2 class="text-sm font-bold text-slate-700">Hyper-Local Smart Matches</h2>
+                    <span class="text-xs text-blue-600 font-bold bg-blue-100 px-2 py-1 rounded animate-pulse">LIVE SQL SYNC</span>
                 </div>
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-500 text-sm border-b">
-                            <th class="p-4 font-semibold">Material</th>
-                            <th class="p-4 font-semibold">Match Routing</th>
-                            <th class="p-4 font-semibold">Distance</th>
-                            <th class="p-4 font-semibold">CO2-e Avoided</th>
-                            <th class="p-4 font-semibold text-center">Status</th>
+                        <tr class="text-xs text-slate-500 uppercase bg-white border-b">
+                            <th class="p-3">Asset</th><th class="p-3">Trajectory</th><th class="p-3">Haulage</th><th class="p-3">Status</th>
                         </tr>
                     </thead>
                     <tbody id="listingsTableBody" class="text-sm">
-                        <tr class="border-b border-gray-100 hover:bg-gray-50">
-                            <td class="p-4 font-medium text-gray-800">Aluminum Shavings (2.5t)</td>
-                            <td class="p-4">Ambattur Machining &rarr; <span class="text-blue-600">Local Foundry A</span></td>
-                            <td class="p-4">4.2 km</td>
-                            <td class="p-4 text-green-600 font-medium">850 kg</td>
-                            <td class="p-4 text-center"><span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs font-bold">Verified</span></td>
-                        </tr>
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </main>
     </div>
 
     <script>
-        window.onload = function() {
-            // Check browser memory for any saved listings
-            let savedListings = JSON.parse(localStorage.getItem('reSourceHubData')) || [];
-            const tableBody = document.getElementById('listingsTableBody');
+        // 1. CONNECT TO SUPABASE (Your Keys!)
+        const supabaseUrl = 'https://fkssmmdopnrstqytapae.supabase.co';
+        const supabaseKey = 'sb_publishable_v4JsOeAw22tbYdgRoRUpNg_gRcLNyWf';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-            // If there is data, inject it at the top of the table
-            savedListings.forEach(item => {
-                const newRow = `
-                    <tr class="border-b border-gray-100 bg-green-50 animate-pulse">
-                        <td class="p-4 font-bold text-gray-800">${item.material} <span class="text-xs text-white bg-green-600 px-2 py-1 rounded ml-2">NEW</span></td>
-                        <td class="p-4">${item.routing}</td>
-                        <td class="p-4 font-bold text-blue-600">${item.distance}</td>
-                        <td class="p-4 text-green-600 font-bold">${item.co2}</td>
-                        <td class="p-4 text-center"><span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs font-bold">Matched via API</span></td>
-                    </tr>
-                `;
-                tableBody.insertAdjacentHTML('afterbegin', newRow);
+        window.onload = async function() {
+            // Setup Map
+            var map = L.map('map').setView([13.0983, 80.1622], 14);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+            L.circleMarker([13.0950, 80.1600], {color: 'red', radius: 6}).addTo(map);
+            L.circleMarker([13.1020, 80.1650], {color: 'blue', radius: 6}).addTo(map);
+            L.polyline([[13.0950, 80.1600], [13.1020, 80.1650]], {color: 'green', dashArray: '5, 5', weight: 3}).addTo(map);
+
+            // Setup Chart
+            const ctx = document.getElementById('impactChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: { labels: ['W1', 'W2', 'W3', 'W4'], datasets: [{ data: [1200, 1900, 1500, 2200], backgroundColor: '#3b82f6', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
+
+            // 2. FETCH DATA FROM YOUR LIVE POSTGRESQL DATABASE
+            const { data: byproducts, error } = await supabase
+                .from('byproducts')
+                .select('*')
+                .order('id', { ascending: false }); // Gets newest first
+
+            if (error) {
+                console.error("Database Error:", error);
+                document.getElementById('listingsTableBody').innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500 font-bold">Database connection failed. Did you turn off Row Level Security (RLS)?</td></tr>`;
+                return;
+            }
+
+            const tableBody = document.getElementById('listingsTableBody');
+            let currentTonnes = 104.2; // Base number
+
+            // Loop through the real database items
+            if(byproducts && byproducts.length > 0) {
+                byproducts.forEach(item => {
+                    const newRow = `
+                        <tr class="border-b border-blue-100 bg-blue-50/30">
+                            <td class="p-3 font-bold text-slate-800">${item.material}</td>
+                            <td class="p-3 text-slate-600">${item.routing}</td>
+                            <td class="p-3 text-blue-600 font-bold">${item.distance}</td>
+                            <td class="p-3"><span class="bg-blue-100 text-blue-700 py-1 px-2 rounded text-xs font-bold"><i class="fa-solid fa-cloud mr-1"></i>Cloud SQL DB</span></td>
+                        </tr>`;
+                    tableBody.insertAdjacentHTML('beforeend', newRow);
+                    if(item.rawVolume) currentTonnes += parseFloat(item.rawVolume); 
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">No byproducts in database yet. Inject material to begin!</td></tr>`;
+            }
+
+            document.getElementById('totalDiverted').innerText = currentTonnes.toFixed(1);
         }
     </script>
 </body>
